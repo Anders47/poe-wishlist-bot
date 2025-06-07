@@ -23,21 +23,26 @@ public class SyncWishlistCommand extends ListenerAdapter {
      */
     public CompletableFuture<Void> sync(TextChannel channel) {
         return channel.getHistory()
-                .retrievePast(100)
-                .submit()
+                .retrievePast(100)    // RestAction<List<Message>>
+                .submit()             // CompletableFuture<List<Message>>
                 .thenAccept(messages -> {
                     store.clear();
                     String userId = channel.getId();
+
                     for (Message msg : messages) {
-                        String line = msg.getContentRaw().trim();
-                        // we skip the bots own messages and empty lines
-                        // for the bots messages, we can utilise the "emotes" that are the starts often
-                        if (line.startsWith("✅"))    continue;
-                        if (line.startsWith("❌"))    continue;
-                        // for the commands the users have typed, we filter out the command prefix "!"
-                        if (line.startsWith("!"))     continue;
-                        if (!line.isEmpty()) {
-                            store.addWish(userId, line);
+                        String raw = msg.getContentRaw().trim();
+                        // skip empty lines, commands and confirmations
+                        if (raw.isEmpty() || raw.startsWith("!") || raw.startsWith("✅") || raw.startsWith("❌")) {
+                            continue;
+                        }
+                        // split multi-line messages into individual lines
+                        String[] parts = raw.split("\\R");
+                        for (String part : parts) {
+                            String wish = part.trim();
+                            if (wish.isEmpty()) {
+                                continue;
+                            }
+                            store.addWish(userId, wish);
                         }
                     }
                 });

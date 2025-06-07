@@ -98,4 +98,32 @@ class SyncWishlistCommandTest {
         assertThat("Should store exactly one valid wish", wishes.size(), is(1));
         assertThat("That wish must be the real item", wishes.get(0), is("Wanderlust"));
     }
+
+    @Test
+    void givenSingleMessageWithMultipleUniques_whenSync_thenStoreHasAllItems() {
+        // Given: én besked med tre unikke items adskilt af newline
+        Message multiLineMsg = mock(Message.class);
+        String payload = String.join("\n",
+                "Hrimsorrow",
+                "Goldrim",
+                "Headhunter"
+        );
+        when(multiLineMsg.getContentRaw()).thenReturn(payload);
+
+        // history.returner kun denne ene besked
+        when(history.retrievePast(100)).thenReturn(fakeHistoryAction);
+        when(fakeHistoryAction.submit())
+                .thenReturn(CompletableFuture.completedFuture(List.of(multiLineMsg)));
+
+        // When: vi kalder sync
+        command.sync(channel).join();
+
+        // Then: alle tre items skal være gemt som separate wishes
+        List<String> wishes = store.getWishes(USER_ID);
+        assertThat("Should store exactly 3 wishes", wishes.size(), is(3));
+        assertThat("First unique",  wishes.get(0), is("Hrimsorrow"));
+        assertThat("Second unique", wishes.get(1), is("Goldrim"));
+        assertThat("Third unique",  wishes.get(2), is("Headhunter"));
+    }
+
 }
