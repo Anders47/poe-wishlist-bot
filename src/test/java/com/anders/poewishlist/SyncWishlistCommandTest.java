@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -32,11 +33,11 @@ class SyncWishlistCommandTest {
 
     @BeforeEach
     void setUp() {
-        // 1) in-memory store + mocked parser
+        // in-memory store + mocked parser
         store  = new InMemoryWishlistStore();
         parser = mock(WishlistParser.class);
 
-        // 2) mock channel → history → restAction
+        // mock channel → history → restAction
         channel       = mock(TextChannel.class);
         MessageHistory history = mock(MessageHistory.class);
         historyAction = mock(RestAction.class);
@@ -44,7 +45,7 @@ class SyncWishlistCommandTest {
         when(channel.getHistory()).thenReturn(history);
         when(history.retrievePast(100)).thenReturn(historyAction);
 
-        // 3) command under test
+        // command under test
         command = new SyncWishlistCommand(store, parser);
     }
 
@@ -81,21 +82,52 @@ class SyncWishlistCommandTest {
     }
 
     @Test
+    void whenSync_thenReturnsParserResults() {
+        // GIVEN: two fake JDA Messages
+        Message m1 = mock(Message.class);
+        Message m2 = mock(Message.class);
+        when(historyAction.submit())
+                .thenReturn(CompletableFuture.completedFuture(List.of(m1, m2)));
+
+        // AND parser.parse(...) returns a known list
+        List<String> parsed = List.of("Mageblood","Goldrim");
+        when(parser.parse(anyList(), eq(USER_ID))).thenReturn(parsed);
+
+        // WHEN
+        List<String> result = command.sync(channel, USER_ID).join();
+
+        // THEN: we get back exactly that same list
+        assertThat(result, contains("Mageblood","Goldrim"));
+    }
+
+    @Test
     void whenSync_thenParserReceivesExactlyHistoryMessagesAndUserId() {
-        // Given: two fake JDA Messages
+        // GIVEN
         Message m1 = mock(Message.class);
         Message m2 = mock(Message.class);
         CompletableFuture<List<Message>> fut =
                 CompletableFuture.completedFuture(List.of(m1, m2));
         when(historyAction.submit()).thenReturn(fut);
-
-        // stub parser to return nothing (we just want to capture args)
         when(parser.parse(anyList(), eq(USER_ID))).thenReturn(List.of());
 
-        // When
+        // WHEN
         command.sync(channel, USER_ID).join();
 
-        // Then: parser.parse(...) was invoked with exactly [m1, m2], USER_ID
+        // THEN
         verify(parser).parse(List.of(m1, m2), USER_ID);
+    }
+
+    @Test
+    void whenHistoryFails_thenSyncFutureIsExceptional() {
+        // GIVEN: RestAction.submit() gives a failed future
+        CompletableFuture<List<Message>> failed = new CompletableFuture<>();
+        failed.completeExceptionally(new RuntimeException("boom"));
+        when(historyAction.submit()).thenReturn(failed);
+
+        // WHEN
+        CompletableFuture<List<String>> syncFuture = command.sync(channel, USER_ID);
+
+        // THEN
+        assertTrue(syncFuture.isCompletedExceptionally());
     }
 }

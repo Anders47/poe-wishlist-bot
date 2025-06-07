@@ -24,16 +24,20 @@ public class SyncWishlistCommand extends ListenerAdapter {
     }
 
     /**
-     * Public API for tests: synchronizes the store from the given channel.
+     * Public API for tests (and callers): synchronizes the store from the given channel,
+     * and returns the final list of canonical uniques.
      */
-    public CompletableFuture<Void> sync(TextChannel channel, String userId) {
-        return channel.getHistory().retrievePast(100).submit().thenAccept(messages -> {
-            store.clearUser(userId);
-            List<String> wishes = parser.parse(messages, userId);
-            wishes.forEach(item -> store.addWish(userId, item));
-        });
+    public CompletableFuture<List<String>> sync(TextChannel channel, String userId) {
+        return channel.getHistory()
+                .retrievePast(100)
+                .submit()
+                .thenApply(messages -> {
+                    store.clearUser(userId);
+                    List<String> wishes = parser.parse(messages, userId);
+                    wishes.forEach(item -> store.addWish(userId, item));
+                    return wishes;
+                });
     }
-
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {

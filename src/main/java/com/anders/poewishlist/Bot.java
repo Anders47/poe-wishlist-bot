@@ -1,7 +1,9 @@
 package com.anders.poewishlist;
 
+import com.anders.poewishlist.commands.ListWishlistCommand;
 import com.anders.poewishlist.commands.PingCommand;
 import com.anders.poewishlist.commands.SyncWishlistCommand;
+import com.anders.poewishlist.db.DatabaseWishlistStore;
 import com.anders.poewishlist.db.InMemoryWishlistStore;
 import com.anders.poewishlist.db.WishlistStore;
 import com.anders.poewishlist.service.WishlistParser;
@@ -22,9 +24,10 @@ public class Bot {
             return;
         }
         log.info("Starting PoE Wishlist Bot…");
+        String jdbcUrl = "jdbc:sqlite:poewishlist.db";
 
         // Wire up our store, parser & matcher
-        WishlistStore store        = new InMemoryWishlistStore();
+        WishlistStore store        = new DatabaseWishlistStore(jdbcUrl);
         UniqueItemMatcher matcher  = new UniqueItemMatcher();
         WishlistParser parser      = new WishlistParser(matcher);
 
@@ -33,7 +36,8 @@ public class Bot {
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(
                         new PingCommand(),
-                        new SyncWishlistCommand(store, parser)
+                        new SyncWishlistCommand(store, parser),
+                        new ListWishlistCommand(store)
                 );
 
         // Launch the bot
