@@ -116,4 +116,70 @@ class WishlistParserTest {
         // Then
         assertThat(result, is(empty()));
     }
+
+
+    @Test
+    void givenNoMatchesFromMatcher_whenParse_thenReturnEmptyList() {
+        when(msg.getContentRaw()).thenReturn("UnknownItem");
+        when(matcher.match("UnknownItem")).thenReturn(null);
+
+        List<String> result = parser.parse(List.of(msg), USER_ID);
+
+        assertThat(result, is(empty()));
+    }
+
+    @Test
+    void givenMultipleMessages_whenParse_thenMergeAllItems() {
+        // first message with two items
+        Message m1 = mock(Message.class);
+        User authorA = mock(User.class);
+        when(authorA.getId()).thenReturn(USER_ID);
+        when(m1.getAuthor()).thenReturn(authorA);
+        when(m1.getContentRaw()).thenReturn("Headhunter\nGoldrim");
+        when(matcher.match("Headhunter")).thenReturn("Headhunter");
+        when(matcher.match("Goldrim")).thenReturn("Goldrim");
+
+        // second message with one item
+        Message m2 = mock(Message.class);
+        when(m2.getAuthor()).thenReturn(authorA);
+        when(m2.getContentRaw()).thenReturn("Wanderlust");
+        when(matcher.match("Wanderlust")).thenReturn("Wanderlust");
+
+        List<String> result = parser.parse(List.of(m1, m2), USER_ID);
+
+        assertThat(result, contains("Headhunter", "Goldrim", "Wanderlust"));
+    }
+
+
+    @Test
+    void givenDuplicateEntriesAcrossMessages_whenParse_thenRemoveDuplicates() {
+        // two messages both containing "Wanderlust"
+        Message m1 = mock(Message.class);
+        Message m2 = mock(Message.class);
+        User authorA = mock(User.class);
+        when(authorA.getId()).thenReturn(USER_ID);
+        when(m1.getAuthor()).thenReturn(authorA);
+        when(m2.getAuthor()).thenReturn(authorA);
+
+        when(m1.getContentRaw()).thenReturn("Wanderlust");
+        when(m2.getContentRaw()).thenReturn("Wanderlust");
+        when(matcher.match("Wanderlust")).thenReturn("Wanderlust");
+
+        List<String> result = parser.parse(List.of(m1, m2), USER_ID);
+
+        assertThat(result, contains("Wanderlust"));
+    }
+
+    @Test
+    void givenBlankAndWhitespaceLines_whenParse_thenIgnoreEmptyParts() {
+        when(msg.getContentRaw()).thenReturn(
+                "  \nHeadhunter  \n   \nGoldrim\n"
+        );
+        when(matcher.match("Headhunter")).thenReturn("Headhunter");
+        when(matcher.match("Goldrim")).thenReturn("Goldrim");
+
+        List<String> result = parser.parse(List.of(msg), USER_ID);
+
+        assertThat(result, contains("Headhunter", "Goldrim"));
+    }
 }
