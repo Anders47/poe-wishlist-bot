@@ -14,13 +14,23 @@ To try and alleviate having each player have live searches on the private league
 
 The idea is, that you get the bot for your private league's Discord and use it in a channel, where each player can make a list of items they want for their build. Then when a player in the private league puts that item into a public stash tab, the bot will see it, and notify the player looking for it, probably via a DM on Discord or in a designated text-channel. 
 
-## Goals
+I figured I might as well make it publicly available, in case anyone else was looking for something similar. 
+
+## Implemented features
+
+nothing yet lol
+
+## Current goals
 
 Poll the PoE public stash API every 10 minutes for new stash tabs
 
 Match incoming items against a user-defined wish list
 
 Notify via a dedicated Discord channel
+
+## Future goals
+
+???
 
 ## Buildstack
 
