@@ -32,7 +32,6 @@ class SyncWishlistCommandTest {
         // Given a fresh in-memory store and a mocked TextChannel
         store   = new InMemoryWishlistStore();
         channel = mock(TextChannel.class);
-        when(channel.getId()).thenReturn(USER_ID);
 
         // Mock MessageHistory and stub getHistory()
         history = mock(MessageHistory.class);
@@ -64,7 +63,7 @@ class SyncWishlistCommandTest {
         when(fakeHistoryAction.submit()).thenReturn(future);
 
         // When: we call sync and wait for it to finish
-        command.sync(channel).join();
+        command.sync(channel, USER_ID).join();
 
         // Then: the store contains exactly those three items, in the same order
         List<String> wishes = store.getWishes(USER_ID);
@@ -91,7 +90,7 @@ class SyncWishlistCommandTest {
                 .thenReturn(CompletableFuture.completedFuture(List.of(cmdMsg, itemMsg, botMsg)));
 
         // When: we sync
-        command.sync(channel).join();
+        command.sync(channel, USER_ID).join();
 
         // Then: only the real item remains
         List<String> wishes = store.getWishes(USER_ID);
@@ -116,7 +115,7 @@ class SyncWishlistCommandTest {
                 .thenReturn(CompletableFuture.completedFuture(List.of(multiLineMsg)));
 
         // When: vi kalder sync
-        command.sync(channel).join();
+        command.sync(channel, USER_ID).join();
 
         // Then: alle tre items skal være gemt som separate wishes
         List<String> wishes = store.getWishes(USER_ID);
@@ -137,10 +136,33 @@ class SyncWishlistCommandTest {
                 .thenReturn(CompletableFuture.completedFuture(List.of(typoMsg)));
 
         // When: we run sync
-        command.sync(channel).join();
+        command.sync(channel, USER_ID).join();
 
         // Then: store should contain the canonical "Headhunter"
         List<String> wishes = store.getWishes(USER_ID);
         assertThat("Should correct typo to canonical name", wishes, is(List.of("Headhunter")));
+    }
+
+    @Test
+    void givenCommaSeparatedUniquesInSingleMessage_whenSync_thenStoreHasAllItems() {
+        // Given: one message with three uniques separated by commas
+        Message commaMsg = mock(Message.class);
+        when(commaMsg.getContentRaw()).thenReturn(
+                "Headhunter, Goldrim, Wanderlust"
+        );
+
+        when(history.retrievePast(100)).thenReturn(fakeHistoryAction);
+        when(fakeHistoryAction.submit())
+                .thenReturn(CompletableFuture.completedFuture(List.of(commaMsg)));
+
+        // When
+        command.sync(channel, USER_ID).join();
+
+        // Then
+        List<String> wishes = store.getWishes(USER_ID);
+        assertThat("Should store exactly 3 wishes", wishes.size(), is(3));
+        assertThat("First unique",  wishes.get(0), is("Headhunter"));
+        assertThat("Second unique", wishes.get(1), is("Goldrim"));
+        assertThat("Third unique",  wishes.get(2), is("Wanderlust"));
     }
 }

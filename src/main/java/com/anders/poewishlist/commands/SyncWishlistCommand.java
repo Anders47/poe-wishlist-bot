@@ -25,26 +25,30 @@ public class SyncWishlistCommand extends ListenerAdapter {
     /**
      * Public API for tests: synchronizes the store from the given channel.
      */
-    public CompletableFuture<Void> sync(TextChannel channel) {
+    public CompletableFuture<Void> sync(TextChannel channel, String userId) {
         return channel.getHistory()
-                .retrievePast(100)    // RestAction<List<Message>>
-                .submit()             // CompletableFuture<List<Message>>
+                .retrievePast(100)
+                .submit()
                 .thenAccept(messages -> {
                     store.clear();
-                    String userId = channel.getId();
-
                     for (Message msg : messages) {
                         String raw = msg.getContentRaw().trim();
-                        // skip empty lines, commands and confirmations
-                        if (raw.isEmpty() || raw.startsWith("!") || raw.startsWith("✅") || raw.startsWith("❌")) {
+                        if (raw.isEmpty() || raw.startsWith("!") || raw.startsWith("✅") || raw.startsWith("❌"))
+                        {
                             continue;
                         }
-                        // split multi-line messages into individual lines
-                        String[] parts = raw.split("\\R");
+                        // split on newline or comma
+                        String[] parts = raw.split("[,\\r\\n]+");
                         for (String part : parts) {
-                            String canonical = matcher.match(part.trim());
+                            String wish = part.trim();
+                            if (wish.isEmpty()) continue;
+
+                            // fuzzy match for canonical unique
+                            String canonical = matcher.match(wish);
                             if (canonical != null) {
                                 store.addWish(userId, canonical);
+                            } else {
+                                log.warn("Wish does not match: {}", wish);
                             }
                         }
                     }
@@ -62,9 +66,9 @@ public class SyncWishlistCommand extends ListenerAdapter {
         if (!content.equalsIgnoreCase("!syncwishlist")) return;
 
         // Kick off the same sync logic, then send confirmation
-        sync(channel)
+        String userId = event.getAuthor().getId();
+        sync(channel, userId)
                 .thenRun(() -> {
-                    String userId = channel.getId();
                     int count = store.getWishes(userId).size();
                     channel.sendMessage(
                             String.format("✅ Wishlist synchronized! Loaded %d items.", count)
