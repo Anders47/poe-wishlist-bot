@@ -28,7 +28,6 @@ class SyncWishlistCommandTest {
     private SyncWishlistCommand command;
 
     private TextChannel channel;
-    private MessageHistory history;
     private RestAction<List<Message>> historyAction;
 
     @BeforeEach
@@ -39,7 +38,7 @@ class SyncWishlistCommandTest {
 
         // 2) mock channel → history → restAction
         channel       = mock(TextChannel.class);
-        history       = mock(MessageHistory.class);
+        MessageHistory history = mock(MessageHistory.class);
         historyAction = mock(RestAction.class);
 
         when(channel.getHistory()).thenReturn(history);
@@ -63,5 +62,40 @@ class SyncWishlistCommandTest {
 
         // Then: store contains exactly the two parser items
         assertThat(store.getWishes(USER_ID), contains("Mageblood", "Goldrim"));
+    }
+
+    @Test
+    void whenSync_thenClearUserCalledBeforeAdding() {
+        // Given: some pre-existing wish for USER_ID
+        store.addWish(USER_ID, "OldUnique");
+        when(historyAction.submit())
+                .thenReturn(CompletableFuture.completedFuture(List.of()));
+        when(parser.parse(anyList(), eq(USER_ID)))
+                .thenReturn(List.of("NewUnique"));
+
+        // When
+        command.sync(channel, USER_ID).join();
+
+        // Then: old wishes are gone, new one is present
+        assertThat(store.getWishes(USER_ID), contains("NewUnique"));
+    }
+
+    @Test
+    void whenSync_thenParserReceivesExactlyHistoryMessagesAndUserId() {
+        // Given: two fake JDA Messages
+        Message m1 = mock(Message.class);
+        Message m2 = mock(Message.class);
+        CompletableFuture<List<Message>> fut =
+                CompletableFuture.completedFuture(List.of(m1, m2));
+        when(historyAction.submit()).thenReturn(fut);
+
+        // stub parser to return nothing (we just want to capture args)
+        when(parser.parse(anyList(), eq(USER_ID))).thenReturn(List.of());
+
+        // When
+        command.sync(channel, USER_ID).join();
+
+        // Then: parser.parse(...) was invoked with exactly [m1, m2], USER_ID
+        verify(parser).parse(List.of(m1, m2), USER_ID);
     }
 }
