@@ -2,13 +2,16 @@ package com.anders.poewishlist;
 
 import com.anders.poewishlist.commands.PingCommand;
 import com.anders.poewishlist.commands.SyncWishlistCommand;
+import com.anders.poewishlist.db.InMemoryWishlistStore;
+import com.anders.poewishlist.db.WishlistStore;
+import com.anders.poewishlist.service.WishlistParser;
+import com.anders.poewishlist.util.UniqueItemMatcher;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Bot {
-    // local logging
     private static final Logger log = LoggerFactory.getLogger(Bot.class);
 
     public static void main(String[] args) throws Exception {
@@ -18,20 +21,23 @@ public class Bot {
             System.err.println("DISCORD_TOKEN not set – aborting startup.");
             return;
         }
+        log.info("Starting PoE Wishlist Bot…");
 
-        // Build JDA instance with MESSAGE_CONTENT intent
+        // Wire up our store, parser & matcher
+        WishlistStore store        = new InMemoryWishlistStore();
+        UniqueItemMatcher matcher  = new UniqueItemMatcher();
+        WishlistParser parser      = new WishlistParser(matcher);
+
+        // Build and configure JDA
         JDABuilder builder = JDABuilder.createDefault(token)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
-                // Register all event listeners (commands, poller, etc.)
                 .addEventListeners(
                         new PingCommand(),
-                        new SyncWishlistCommand(
-                                new com.anders.poewishlist.db.InMemoryWishlistStore()
-                        )
+                        new SyncWishlistCommand(store, parser)
                 );
 
-        // Start the bot
+        // Launch the bot
         builder.build();
-        System.out.println("Bot is up and running!");
+        log.info("Bot is up and running!");
     }
 }

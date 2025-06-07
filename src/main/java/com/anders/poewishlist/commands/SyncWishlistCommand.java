@@ -2,58 +2,38 @@ package com.anders.poewishlist.commands;
 
 import com.anders.poewishlist.db.WishlistStore;
 import com.anders.poewishlist.util.UniqueItemMatcher;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.anders.poewishlist.service.WishlistParser;
+import java.util.List;
+
 import java.util.concurrent.CompletableFuture;
 
 public class SyncWishlistCommand extends ListenerAdapter {
-    // local logging
     private static final Logger log = LoggerFactory.getLogger(SyncWishlistCommand.class);
-    // unique item name matcher
-    private final UniqueItemMatcher matcher = new UniqueItemMatcher();
-
     private final WishlistStore store;
+    private final WishlistParser parser;
 
-    public SyncWishlistCommand(WishlistStore store) {
+
+    public SyncWishlistCommand(WishlistStore store, WishlistParser parser) {
         this.store = store;
+        this.parser = parser;
     }
 
     /**
      * Public API for tests: synchronizes the store from the given channel.
      */
     public CompletableFuture<Void> sync(TextChannel channel, String userId) {
-        return channel.getHistory()
-                .retrievePast(100)
-                .submit()
-                .thenAccept(messages -> {
-                    store.clear();
-                    for (Message msg : messages) {
-                        String raw = msg.getContentRaw().trim();
-                        if (raw.isEmpty() || raw.startsWith("!") || raw.startsWith("✅") || raw.startsWith("❌"))
-                        {
-                            continue;
-                        }
-                        // split on newline or comma
-                        String[] parts = raw.split("[,\\r\\n]+");
-                        for (String part : parts) {
-                            String wish = part.trim();
-                            if (wish.isEmpty()) continue;
-
-                            // fuzzy match for canonical unique
-                            String canonical = matcher.match(wish);
-                            if (canonical != null) {
-                                store.addWish(userId, canonical);
-                            } else {
-                                log.warn("Wish does not match: {}", wish);
-                            }
-                        }
-                    }
-                });
+        return channel.getHistory().retrievePast(100).submit().thenAccept(messages -> {
+            store.clearUser(userId);
+            List<String> wishes = parser.parse(messages, userId);
+            wishes.forEach(item -> store.addWish(userId, item));
+        });
     }
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {

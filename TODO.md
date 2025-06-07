@@ -2,12 +2,12 @@
 
 ### Wishlist features:
 
-Should not parse already seen items for already seen users  
 List current wishlist item (for self or other user (by other users discord name))  
 See who has item as wishlist item  
-Remove item from wishlist  
+Remove item from wishlist (maybe by button from dm from bot on item confirmation?)  
 Ensure you only can remove your own items, and not others  
 Not count duplicate entries from same user
+
 
 ### Additional items:
 
@@ -17,9 +17,6 @@ Transfigured gems
 
 
 ### Other features:
-List of all unique items 
 
 ### User instructions:
-User should not type base name, only unique item  
-
-
+User should not type base name, only unique item
