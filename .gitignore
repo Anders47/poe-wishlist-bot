@@ -1,0 +1,11 @@
+# Gradle
+/.gradle/
+/build/
+/out/
+
+# IntelliJ
+/.idea/
+/*.iml
+
+# Environment
+.env
