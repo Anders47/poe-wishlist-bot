@@ -126,4 +126,21 @@ class SyncWishlistCommandTest {
         assertThat("Third unique",  wishes.get(2), is("Headhunter"));
     }
 
+    @Test
+    void givenTypoInWishlist_whenSync_thenTypoIsCorrectedToCanonicalUnique() {
+        // Given: one message with a typo’ed unique name
+        Message typoMsg = mock(Message.class);
+        when(typoMsg.getContentRaw()).thenReturn("heaDhunter");  // typo + mixed case
+
+        when(history.retrievePast(100)).thenReturn(fakeHistoryAction);
+        when(fakeHistoryAction.submit())
+                .thenReturn(CompletableFuture.completedFuture(List.of(typoMsg)));
+
+        // When: we run sync
+        command.sync(channel).join();
+
+        // Then: store should contain the canonical "Headhunter"
+        List<String> wishes = store.getWishes(USER_ID);
+        assertThat("Should correct typo to canonical name", wishes, is(List.of("Headhunter")));
+    }
 }
