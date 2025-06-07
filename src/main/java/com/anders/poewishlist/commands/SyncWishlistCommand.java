@@ -30,6 +30,12 @@ public class SyncWishlistCommand extends ListenerAdapter {
                     String userId = channel.getId();
                     for (Message msg : messages) {
                         String line = msg.getContentRaw().trim();
+                        // we skip the bots own messages and empty lines
+                        // for the bots messages, we can utilise the "emotes" that are the starts often
+                        if (line.startsWith("✅"))    continue;
+                        if (line.startsWith("❌"))    continue;
+                        // for the commands the users have typed, we filter out the command prefix "!"
+                        if (line.startsWith("!"))     continue;
                         if (!line.isEmpty()) {
                             store.addWish(userId, line);
                         }

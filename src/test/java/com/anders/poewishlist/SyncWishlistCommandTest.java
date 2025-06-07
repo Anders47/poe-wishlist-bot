@@ -73,4 +73,29 @@ class SyncWishlistCommandTest {
         assertThat("Second wish", wishes.get(1), is("Goldrim"));
         assertThat("Third wish",  wishes.get(2), is("Wanderlust"));
     }
+
+    @Test
+    void givenCommandAndConfirmationMessages_whenSync_thenOnlyValidItemsAreStored() {
+        // Given: a channel history mixing a command, a real item, and the bot's own confirmation
+        Message cmdMsg  = mock(Message.class);
+        Message itemMsg = mock(Message.class);
+        Message botMsg  = mock(Message.class);
+        when(cmdMsg.getContentRaw()).thenReturn("!syncwishlist");
+        when(itemMsg.getContentRaw()).thenReturn("Wanderlust");
+        when(botMsg.getContentRaw()).thenReturn("✅ Wishlist synchronized! Loaded 1 items.");
+
+        // Mock history and submission
+        when(channel.getHistory()).thenReturn(history);
+        when(history.retrievePast(100)).thenReturn(fakeHistoryAction);
+        when(fakeHistoryAction.submit())
+                .thenReturn(CompletableFuture.completedFuture(List.of(cmdMsg, itemMsg, botMsg)));
+
+        // When: we sync
+        command.sync(channel).join();
+
+        // Then: only the real item remains
+        List<String> wishes = store.getWishes(USER_ID);
+        assertThat("Should store exactly one valid wish", wishes.size(), is(1));
+        assertThat("That wish must be the real item", wishes.get(0), is("Wanderlust"));
+    }
 }
