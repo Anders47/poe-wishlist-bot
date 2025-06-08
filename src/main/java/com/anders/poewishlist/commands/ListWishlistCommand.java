@@ -34,6 +34,7 @@ public class ListWishlistCommand extends ListenerAdapter {
 
         if (wishes.isEmpty()) {
             channel.sendMessage("Your wishlist is empty!").queue();
+            log.info("User {} wishlist is empty!", userId);
         } else {
             String body = wishes.stream()
                     .map(item -> "• " + item)

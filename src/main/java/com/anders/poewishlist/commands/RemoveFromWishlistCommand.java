@@ -31,6 +31,7 @@ public class RemoveFromWishlistCommand extends ListenerAdapter {
         if (canonical == null) {
             event.getChannel()
                     .sendMessage("❌ Could not recognize item `" + arg + "`.").queue();
+            log.info("User tried to remove {} unrecognized item `{}`", event.getAuthor().getName(), arg);
             return;
         }
 

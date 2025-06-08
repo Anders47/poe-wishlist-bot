@@ -17,4 +17,4 @@ Transfigured gems
 Can take POB/Poe.ninja, find uniques and add to your list
 
 ### User instructions:
-User should not type base name, only unique item
+User should not type base name, only unique item  

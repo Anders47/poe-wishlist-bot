@@ -37,7 +37,8 @@ public class Bot {
                         new SyncWishlistCommand(store, parser),
                         new ListWishlistCommand(store),
                         new AddToWishlistCommand(store, new UniqueItemMatcher()),
-                        new RemoveFromWishlistCommand(store, new UniqueItemMatcher())
+                        new RemoveFromWishlistCommand(store, new UniqueItemMatcher()),
+                        new ClearWishlistCommand(store)
                 );
 
         // Launch the bot

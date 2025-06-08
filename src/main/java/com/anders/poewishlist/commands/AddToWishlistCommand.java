@@ -29,6 +29,7 @@ public class AddToWishlistCommand extends ListenerAdapter {
         if (canonical == null) {
             event.getChannel()
                     .sendMessage("❌ Could not recognize item `" + raw + "`.").queue();
+            log.info("User tried to add {} unrecognized item `{}`", event.getAuthor().getName(), raw);
             return;
         }
 
