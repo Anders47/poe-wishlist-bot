@@ -80,7 +80,7 @@ public class DatabaseWishlistStore implements WishlistStore, AutoCloseable {
     public void removeWish(String userId, String itemName) {
         try (Connection c = ds.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "DELETE WHERE user_id=? AND item=?"
+                     "DELETE FROM wishlist WHERE user_id=? AND item=?"
              )) {
             ps.setString(1, userId);
             ps.setString(2, itemName);

@@ -1,9 +1,6 @@
 package com.anders.poewishlist;
 
-import com.anders.poewishlist.commands.AddToWishlistCommand;
-import com.anders.poewishlist.commands.ListWishlistCommand;
-import com.anders.poewishlist.commands.PingCommand;
-import com.anders.poewishlist.commands.SyncWishlistCommand;
+import com.anders.poewishlist.commands.*;
 import com.anders.poewishlist.db.DatabaseWishlistStore;
 import com.anders.poewishlist.db.InMemoryWishlistStore;
 import com.anders.poewishlist.db.WishlistStore;
@@ -39,7 +36,8 @@ public class Bot {
                         new PingCommand(),
                         new SyncWishlistCommand(store, parser),
                         new ListWishlistCommand(store),
-                        new AddToWishlistCommand(store, new UniqueItemMatcher())
+                        new AddToWishlistCommand(store, new UniqueItemMatcher()),
+                        new RemoveFromWishlistCommand(store, new UniqueItemMatcher())
                 );
 
         // Launch the bot

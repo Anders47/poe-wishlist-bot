@@ -4,6 +4,8 @@ import com.anders.poewishlist.db.WishlistStore;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +13,8 @@ import java.util.stream.Collectors;
 public class ListWishlistCommand extends ListenerAdapter {
     private static final String COMMAND = "!listwishlist";
     private final WishlistStore store;
+    private static final Logger log = LoggerFactory.getLogger(ListWishlistCommand.class);
+
 
     public ListWishlistCommand(WishlistStore store) {
         this.store = store;
@@ -35,6 +39,7 @@ public class ListWishlistCommand extends ListenerAdapter {
                     .map(item -> "• " + item)
                     .collect(Collectors.joining("\n"));
             channel.sendMessage("Your wishlist:\n" + body).queue();
+            log.info("Wishlist for user {}: \n {}", userId, body);
         }
     }
 }
