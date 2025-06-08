@@ -4,7 +4,9 @@
 
 A hobby project by a PoE player and computer science student, building a Discord bot in Java that monitors public stash tabs in a private Path of Exile league and notifies users when desired unique items appear.
 
-
+## How to use
+Once the bot is invited to the designated server and channel, you can add items to your Discord-user specific wishlist with:
+- !add Shavronne's Wrappings
 
 ## Background
 
@@ -18,7 +20,8 @@ I figured I might as well make it publicly available, in case anyone else was lo
 
 ## Implemented features
 
-nothing yet lol
+Making and maintaining a wishlist by adding and removing items to and from it
+Seeing your current wishlist
 
 ## Current goals
 
@@ -26,11 +29,12 @@ Poll the PoE public stash API every 10 minutes for new stash tabs
 
 Match incoming items against a user-defined wish list
 
-Notify via a dedicated Discord channel
+Notify via a dedicated Discord channel or DMs
 
-## Future goals
+## Future goals (see TODO file as well for this)
 
-???
+Other items (Transfigured gems, specific (influenced) item bases etc.)  
+Total overview over found uniques in a private league
 
 ## Buildstack
 
