@@ -77,6 +77,20 @@ public class DatabaseWishlistStore implements WishlistStore, AutoCloseable {
     }
 
     @Override
+    public void removeWish(String userId, String itemName) {
+        try (Connection c = ds.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "DELETE WHERE user_id=? AND item=?"
+             )) {
+            ps.setString(1, userId);
+            ps.setString(2, itemName);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public List<String> getWishes(String userId) {
         try (Connection c = ds.getConnection();
              PreparedStatement ps = c.prepareStatement(

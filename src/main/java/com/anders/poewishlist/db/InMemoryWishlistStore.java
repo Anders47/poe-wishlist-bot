@@ -24,6 +24,12 @@ public class InMemoryWishlistStore implements WishlistStore {
         }
     }
 
+    @Override
+    public void removeWish(String userId, String itemName) {
+        List<String> list = store.computeIfAbsent(userId, k->new ArrayList<>());
+        list.remove(itemName);
+    }
+
     @Override public List<String> getWishes(String userId) {
         return Collections.unmodifiableList(
                 store.getOrDefault(userId, Collections.emptyList())

@@ -8,5 +8,8 @@ public interface WishlistStore {
     void clearUser(String userId);
 
     void addWish(String userId, String itemName);
+
+    void removeWish(String userId, String itemName);
+
     List<String> getWishes(String userId);
 }

@@ -1,5 +1,6 @@
 package com.anders.poewishlist;
 
+import com.anders.poewishlist.commands.AddToWishlistCommand;
 import com.anders.poewishlist.commands.ListWishlistCommand;
 import com.anders.poewishlist.commands.PingCommand;
 import com.anders.poewishlist.commands.SyncWishlistCommand;
@@ -37,7 +38,8 @@ public class Bot {
                 .addEventListeners(
                         new PingCommand(),
                         new SyncWishlistCommand(store, parser),
-                        new ListWishlistCommand(store)
+                        new ListWishlistCommand(store),
+                        new AddToWishlistCommand(store, new UniqueItemMatcher())
                 );
 
         // Launch the bot

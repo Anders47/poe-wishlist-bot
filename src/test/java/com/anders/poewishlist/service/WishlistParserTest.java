@@ -1,6 +1,5 @@
-package com.anders.poewishlist;
+package com.anders.poewishlist.service;
 
-import com.anders.poewishlist.service.WishlistParser;
 import com.anders.poewishlist.util.UniqueItemMatcher;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;

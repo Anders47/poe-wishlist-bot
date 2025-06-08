@@ -1,6 +1,5 @@
-package com.anders.poewishlist;
+package com.anders.poewishlist.commands;
 
-import com.anders.poewishlist.commands.SyncWishlistCommand;
 import com.anders.poewishlist.db.InMemoryWishlistStore;
 import com.anders.poewishlist.db.WishlistStore;
 import com.anders.poewishlist.service.WishlistParser;
