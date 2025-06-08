@@ -15,7 +15,6 @@ public class ListWishlistCommand extends ListenerAdapter {
     private final WishlistStore store;
     private static final Logger log = LoggerFactory.getLogger(ListWishlistCommand.class);
 
-
     public ListWishlistCommand(WishlistStore store) {
         this.store = store;
     }
@@ -40,7 +39,7 @@ public class ListWishlistCommand extends ListenerAdapter {
                     .map(item -> "• " + item)
                     .collect(Collectors.joining("\n"));
             channel.sendMessage("Your wishlist:\n" + body).queue();
-            log.info("Wishlist for user {}: \n {}", userId, body);
+            log.info("Wishlist for user {}: \n{}", userId, body);
         }
     }
 }

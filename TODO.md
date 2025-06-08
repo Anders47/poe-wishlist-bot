@@ -4,6 +4,7 @@
 
 See who has item as wishlist item  
 Ensure you only can remove your own items, and not others  
+expand add and remove usage  
 
 ### Additional items:
 
