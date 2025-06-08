@@ -4,7 +4,6 @@
 
 See who has item as wishlist item  
 Ensure you only can remove your own items, and not others  
-Clear list entirely
 
 ### Additional items:
 
@@ -17,4 +16,5 @@ Transfigured gems
 Can take POB/Poe.ninja, find uniques and add to your list
 
 ### User instructions:
+An !help feature, to list all commands and usage  
 User should not type base name, only unique item  
