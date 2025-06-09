@@ -36,8 +36,8 @@ public class Bot {
                         new PingCommand(),
                         new SyncWishlistCommand(store, parser),
                         new ListWishlistCommand(store),
-                        new AddToWishlistCommand(store, new UniqueItemMatcher()),
-                        new RemoveFromWishlistCommand(store, new UniqueItemMatcher()),
+                        new AddToWishlistCommand(store, matcher, parser),
+                        new RemoveFromWishlistCommand(store, matcher, parser),
                         new ClearWishlistCommand(store)
                 );
 

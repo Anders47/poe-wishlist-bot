@@ -2,8 +2,11 @@ package com.anders.poewishlist.service;
 
 import com.anders.poewishlist.util.UniqueItemMatcher;
 import net.dv8tion.jda.api.entities.Message;
-import java.util.*;
-import java.util.stream.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 
 public class WishlistParser {
     private final UniqueItemMatcher matcher;
@@ -14,27 +17,26 @@ public class WishlistParser {
 
     public List<String> parse(List<Message> messages, String userId) {
         return messages.stream()
-                // only messages from the syncing user
-                .filter(m -> m.getAuthor() != null && m.getAuthor().getId().equals(userId))
+                .filter(m -> {
+                    m.getAuthor();
+                    return m.getAuthor().getId().equals(userId);
+                })
+                // drop commands & confirmations before splitting
+                .map(m -> m.getContentRaw().trim())
+                .filter(s -> !s.startsWith("!") && !s.startsWith("✅") && !s.isEmpty())
+                // now split & fuzzy-match via your new helper
+                .flatMap(s -> parseText(s).stream())
+                .distinct()  // in case same item appears in multiple messages
+                .collect(Collectors.toList());
+    }
 
-                // take the raw text and split into individual lines/tokens
-                .flatMap(m -> Arrays.stream(m.getContentRaw().split("[,\\r\\n]+")))
-
-                // trim each part
+    public List<String> parseText(String rawPayload) {
+        // split on commas or newlines, trim, fuzzy-match, drop nulls, dedupe
+        return Arrays.stream(rawPayload.split("[,\\r\\n]+"))
                 .map(String::trim)
-
-                // drop blank lines, commands and bot confirmations
-                .filter(s -> !s.isEmpty())
-                .filter(s -> !s.startsWith("!"))
-                .filter(s -> !s.startsWith("✅"))
-
-                // fuzzy-match to canonical uniques, drop non-matches
                 .map(matcher::match)
                 .filter(Objects::nonNull)
-
-                // remove duplicates, preserve order
                 .distinct()
-
                 .collect(Collectors.toList());
     }
 }
