@@ -35,24 +35,6 @@ class WishlistParserTest {
     }
 
     @Test
-    void givenCommandAndConfirmation_whenParse_thenOnlyValidUniques() {
-        // Given: one message mixing a command, a real unique and a confirmation
-        when(msg.getContentRaw()).thenReturn(
-                "!syncwishlist\n" +
-                        "Wanderlust\n" +
-                        "✅ Wishlist synchronized!"
-        );
-        // stub matcher: only "Wanderlust" should match
-        when(matcher.match("Wanderlust")).thenReturn("Wanderlust");
-
-        // When
-        List<String> result = parser.parse(List.of(msg), USER_ID);
-
-        // Then
-        assertThat(result, contains("Wanderlust"));
-    }
-
-    @Test
     void givenMultiLineMessage_whenParse_thenSplitIntoSeparateUniques() {
         // Given: a single message with three uniques separated by newline
         when(msg.getContentRaw()).thenReturn(

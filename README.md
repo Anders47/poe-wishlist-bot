@@ -48,3 +48,7 @@ API: REST calls to the PoE public stash API
 Database: SQLite via JDBC for storing wishlists and alerts
 
 Containerisation: Docker for easy deployment
+
+# Disclaimer:
+
+This product isn't affiliated with or endorsed by Grinding Gear Games in any way.
