@@ -12,4 +12,6 @@ public interface WishlistStore {
     void removeWish(String userId, String itemName);
 
     List<String> getWishes(String userId);
+
+    List<String> getUsersWithItem(String itemName);
 }

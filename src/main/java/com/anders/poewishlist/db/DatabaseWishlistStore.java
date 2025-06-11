@@ -108,4 +108,22 @@ public class DatabaseWishlistStore implements WishlistStore, AutoCloseable {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public List<String> getUsersWithItem(String itemName) {
+        String sql = "SELECT user_id FROM wishlist WHERE item = ?";
+        List<String> users = new ArrayList<>();
+        try (Connection conn = ds.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, itemName);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    users.add(rs.getString("user_id"));
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve users with item " + itemName, e);
+        }
+        return users;
+    }
 }

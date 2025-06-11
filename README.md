@@ -28,7 +28,7 @@ Seeing your current wishlist
 
 ## Current goals
 
-Poll the PoE public stash API every 10 minutes for new stash tabs
+Poll the PoE public stash API every 10 minutes for new uniques in stash tabs
 
 Match incoming items against a user-defined wish list
 

@@ -34,7 +34,6 @@ public class Bot {
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(
                         new PingCommand(),
-                        new SyncWishlistCommand(store, parser),
                         new ListWishlistCommand(store),
                         new AddToWishlistCommand(store, matcher, parser),
                         new RemoveFromWishlistCommand(store, matcher, parser),

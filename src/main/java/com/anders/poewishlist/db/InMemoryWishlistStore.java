@@ -35,4 +35,9 @@ public class InMemoryWishlistStore implements WishlistStore {
                 store.getOrDefault(userId, Collections.emptyList())
         );
     }
+
+    @Override
+    public List<String> getUsersWithItem(String itemName) {
+        return List.of();
+    }
 }
