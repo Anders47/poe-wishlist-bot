@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import com.anders.poewishlist.db.InMemoryWishlistStore;
 import com.anders.poewishlist.db.WishlistStore;
+import com.anders.poewishlist.service.WishlistParser;
 import com.anders.poewishlist.util.UniqueItemMatcher;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.*;
 class AddToWishlistCommandTest {
     private static final String USER_ID = "user-123";
     private WishlistStore store;
+    private WishlistParser parser;
     private UniqueItemMatcher matcher;
     private AddToWishlistCommand cmd;
     private MessageReceivedEvent event;
@@ -51,7 +53,8 @@ class AddToWishlistCommandTest {
 
         store = new InMemoryWishlistStore();
         matcher = mock(UniqueItemMatcher.class);
-        cmd = new AddToWishlistCommand(store, matcher);
+        parser = new WishlistParser(matcher);
+        cmd = new AddToWishlistCommand(store, matcher, parser);
     }
 
     @Test

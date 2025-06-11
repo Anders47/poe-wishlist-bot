@@ -2,6 +2,7 @@ package com.anders.poewishlist.commands;
 
 import com.anders.poewishlist.db.InMemoryWishlistStore;
 import com.anders.poewishlist.db.WishlistStore;
+import com.anders.poewishlist.service.WishlistParser;
 import com.anders.poewishlist.util.UniqueItemMatcher;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -21,7 +22,7 @@ class RemoveFromWishlistCommandTest {
     private WishlistStore store;
     private UniqueItemMatcher matcher;
     private RemoveFromWishlistCommand cmd;
-
+    private WishlistParser parser;
     private MessageReceivedEvent event;
     private MessageChannel channel;
 
@@ -55,7 +56,8 @@ class RemoveFromWishlistCommandTest {
         store   = new InMemoryWishlistStore();
         store.addWish(USER_ID, "Headhunter");
         matcher = mock(UniqueItemMatcher.class);
-        cmd     = new RemoveFromWishlistCommand(store, matcher);
+        parser = new WishlistParser(matcher);
+        cmd     = new RemoveFromWishlistCommand(store, matcher, parser);
     }
 
     @Test
