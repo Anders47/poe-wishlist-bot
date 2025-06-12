@@ -1,0 +1,12 @@
+{
+  "next_change_id": "grid123",
+  "stashes": [
+    {
+      "accountName": "acct",
+      "stash": {"stashTabName":"T1","stashTabId":"1"},
+      "items": [
+        {"id":"i1","league":"Standard","name":"Tabula Rasa","typeLine":"Tabula Rasa","explicitMods":[]}
+      ]
+    }
+  ]
+}

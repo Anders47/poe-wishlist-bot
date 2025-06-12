@@ -23,13 +23,15 @@ class HttpStashApiClientTest {
     private HttpStashApiClient client;
     private ObjectMapper objectMapper;
     private HttpResponse<String> mockResponse;
+    private String baseUrl;
 
     @BeforeEach
     void setUp() throws Exception {
         mockHttpClient = Mockito.mock(HttpClient.class);
         objectMapper = new ObjectMapper();
         mockResponse = Mockito.mock(HttpResponse.class);
-        client = new HttpStashApiClient(mockHttpClient, objectMapper);
+        baseUrl = "https://www.pathofexile.com/api/stash/Standard";
+        client = new HttpStashApiClient(baseUrl, mockHttpClient, objectMapper);
     }
 
     @Test
@@ -56,7 +58,6 @@ class HttpStashApiClientTest {
         ArgumentCaptor<HttpRequest> captor = ArgumentCaptor.forClass(HttpRequest.class);
         verify(mockHttpClient).send(captor.capture(), any());
         URI uri = captor.getValue().uri();
-        assertTrue(uri.toString().contains("league=MyLeague"));
         assertTrue(uri.toString().contains("id=prevId123"));
     }
 
@@ -65,7 +66,7 @@ class HttpStashApiClientTest {
         when(mockResponse.statusCode()).thenReturn(429);
         when(mockResponse.body()).thenReturn("{ } ");
         when(mockHttpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
-                .thenReturn(mockResponse);
+                .thenReturn(mockResponse, mockResponse, mockResponse, mockResponse, mockResponse); // 5 gange
 
         ApiException ex = assertThrows(ApiException.class, () -> client.fetch("L", null));
         assertEquals(429, ex.getStatusCode());

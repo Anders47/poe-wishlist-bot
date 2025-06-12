@@ -9,3 +9,6 @@
 
 # Environment
 .env
+
+# local database
+poewishlist.db

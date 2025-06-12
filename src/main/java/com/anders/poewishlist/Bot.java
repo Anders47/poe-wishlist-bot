@@ -49,7 +49,7 @@ public class Bot {
         DataSource ds = new HikariDataSource(config);
 
         // Initialize stores, parser, matcher
-        WishlistStore store = new DatabaseWishlistStore(ds.toString());
+        WishlistStore store = new DatabaseWishlistStore(ds);
         CursorStore cursorStore = new DatabaseCursorStore(ds);
         UniqueItemMatcher matcher = new UniqueItemMatcher();
         WishlistParser parser = new WishlistParser(matcher);
